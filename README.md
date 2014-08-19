@@ -1,4 +1,4 @@
 js-bson
 =======
 
-JavaScript BSON implementation.
+JavaScript implementation of the [BSON](http://bsonspec.org/) specification.
