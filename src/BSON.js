@@ -20,12 +20,12 @@
     , UTC_DATETIME : { D: 0x09, E: '\x09' }
     , NULL         : { D: 0x0A, E: '\x0A' }
     , REGEXP       : { D: 0x0B, E: '\x0B' }
-    , DB_POINTER   : { D: 0x0C, E: '\x0C' } // Deprecated and not implemented.
-    , JS_CODE      : { D: 0x0D, E: '\x0D' } // Not implemented.
+    , DB_POINTER   : { D: 0x0C, E: '\x0C' } // Deprecated.
+    , JS_CODE      : { D: 0x0D, E: '\x0D' }
     , DEPRECATED   : { D: 0x0E, E: '\x0E' } // Not implemented.
-    , JS_CODE_W_S  : { D: 0x0F, E: '\x0F' } // Not implemented.
+    , JS_CODE_W_S  : { D: 0x0F, E: '\x0F' }
     , INT32        : { D: 0x10, E: '\x10' }
-    , TIMESTAMP    : { D: 0x11, E: '\x11' }
+    , TIMESTAMP    : { D: 0x11, E: '\x11' } // Not implemented.
     , INT64        : { D: 0x12, E: '\x12' }
     , MIN_KEY      : { D: 0xFF, E: '\xFF' } // Not implemented.
     , MAX_KEY      : { D: 0x7F, E: '\x7F' } // Not implemented.
@@ -38,6 +38,30 @@
     , object       : toObject
     , undefined    : toUndefined
     , string       : toString
+  };
+
+  /* ********************************************************************** */
+
+  Array.prototype.reverse = Array.prototype.reverse || function() {
+    for(var i = 0, tmp = null, pivot = this.length / 2; i < pivot; i ++) {
+      tmp = this[ i ];
+      this[ i ] = this[ this.length - i - 1 ];
+      this[ this.length - i - 1 ] = tmp;
+    }
+    return this;
+  };
+
+  /* ********************************************************************** */
+
+  Object.create = Object.create || function( object ) {
+    function F() {}; F.prototype = object; return new F;
+  };
+
+  /* ********************************************************************** */
+
+  Function.prototype.isNative = function() {
+    return /function[^(]*\([^)]*\)[^{]*\{[^[]*\[native code\][^}]*\}/
+      .test( '' + this );
   };
 
   /* ********************************************************************** */
