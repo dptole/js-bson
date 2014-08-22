@@ -66,4 +66,56 @@
 
   /* ********************************************************************** */
 
+  function Binary( data, subtype ) {
+    if( ! ( this instanceof Binary ) )
+      return new Binary( data, subtype );
+
+    this.toString = function() { return data; };
+    this.subtype = subtype;
+  };
+
+  function Buffer( buffer ) {
+    if( ! ( this instanceof Buffer ) )
+      return new Buffer( buffer );
+
+    for(
+      var _buffer = [], i = 0;
+      i < buffer.length;
+      _buffer[ i ] = buffer.charCodeAt( i++ )
+    );
+
+    this.slice = function( start, end ) {
+      if( start !== undefined ) if( end !== undefined ) end += start;
+      return Buffer( buffer.slice( start, end ) );
+    };
+
+    this.sliceWhile = function( callback, start, end ) {
+      for(
+        now_sliced = null, sliced = [], slice = this.toArray(start, end);
+        slice && slice.length &&
+        ( now_sliced = slice.shift() ) && callback( now_sliced );
+        sliced.push( now_sliced )
+      );
+      return Buffer( String.fromCharCode.apply( String, sliced ) );
+    };
+
+    this.toArray = function( start, end ) {
+      if( start !== undefined ) if( end !== undefined ) end += start;
+      return _buffer.slice( start, end );
+    };
+  };
+
+  Buffer.prototype = {
+    constructor: Buffer,
+    get length() { return this.toArray().length; },
+    pick: function( start ) {
+      start = +start; return this.toArray( start, start + 1 )[ 0 ];
+    },
+    readInt32LE:   function(start) {return readInt(this.toArray(start,4))},
+    readInt64LE:   function(start) {return readInt(this.toArray(start,8))},
+    readFloat64LE: function(start) {return readFloat(this.toArray(start,8))}
+  };
+
+  /* ********************************************************************** */
+
 }( this );
