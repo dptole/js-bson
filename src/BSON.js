@@ -118,4 +118,60 @@
 
   /* ********************************************************************** */
 
+  function createFunction( code, variables ) {
+    if( typeof( variables ) === 'object' && null !== variables )
+      var var_list = []
+        , args = []
+      ;
+      for( var name in variables ) {
+        if( /arguments\[\d+\]/.test( name ) )
+          args.push( variables[ name ] );
+        else
+          var_list.push( name + ' = ' + variables[ name ] );
+      }
+      
+      if( var_list.length )
+        var_list = 'var ' + var_list.join('\n  , ') + '\n;\n';
+      
+      args.push( var_list + code );
+      return Function.apply( Function, args );
+  };
+
+  /* ********************************************************************** */
+
+  function readInt( buffer ) {
+    for(var i = 0, value = 0; i < buffer.length;)
+      value += buffer[ i ] * Math.pow( 2, 8 * i++ );
+
+    return value;
+  };
+
+  /* ********************************************************************** */
+
+  function readFloat( buffer ) {
+    var buffer = buffer.reverse()
+      , sign = ( buffer[ 0 ] >> 7 ) > 0 ? -1 : 1
+      , bias = 1023
+      , i = 0
+      , exponent = ( ( buffer[ i++ ] & 127 ) * 256 + buffer[ i++ ] )
+      , mantissa = exponent & 15
+    ;
+    exponent >>= 4;
+
+    for(; buffer[ i ] !== undefined ; mantissa = mantissa * 256 + buffer[ i++ ] );
+
+    if( exponent === 0 )
+      exponent = 1 - bias;
+    else if( exponent === 2047 )
+      return mantissa ? 0 / 0 : sign * ( 1 / 0 );
+    else {
+      mantissa = mantissa + 4503599627370496;
+      exponent -= bias;
+    }
+
+    return sign * mantissa * Math.pow(2, exponent - 52);
+  }
+
+  /* ********************************************************************** */
+
 }( this );
