@@ -66,14 +66,6 @@
 
   /* ********************************************************************** */
 
-  function Binary( data, subtype ) {
-    if( ! ( this instanceof Binary ) )
-      return new Binary( data, subtype );
-
-    this.toString = function() { return data; };
-    this.subtype = subtype;
-  };
-
   function Buffer( buffer ) {
     if( ! ( this instanceof Buffer ) )
       return new Buffer( buffer );
