@@ -332,4 +332,68 @@
 
   /* ********************************************************************** */
 
+  function littleEndian( bytes, data ) {
+    if( data < 0 )
+           if( bytes <= 4 ) data = 0x100000000         + data;
+      else if( bytes <= 8 ) data = 0x10000000000000000 + data;
+
+    for(
+      var i = 0, buffer = [];
+      i++ < bytes;
+      buffer.push( data & 0xFF ), data /= 256
+    );
+
+    return String.fromCharCode.apply( String, buffer );
+  };
+
+  function readAsInt32LE( data ) { return littleEndian( 4, data ); };
+  function readAsInt64LE( data ) { return littleEndian( 8, data ); };
+  
+  /* ********************************************************************** */
+
+  function readAsDouble64LE( data ) {
+    var double64 = []
+      , bias = 1023
+      , max_bias = 2047
+      , sign = data < 0 ? 1 : 0
+      , data = Math.abs( data )
+      , exponent = Math.floor( Math.log( data ) / Math.LN2 )
+      , exponent_length = 11
+      , mantissa = 0
+      , mantissa_length = 52
+      , flag = Math.pow( 2, -exponent )
+    ;
+
+    if( data * flag <  1 ) exponent--, flag *= 2;
+    if( data * flag >= 2 ) exponent++, flag /= 2;
+
+    if( exponent + bias >= max_bias ) {
+      exponent = max_bias;
+    } else if ( exponent + bias >= 1 ) {
+      mantissa = ( data * flag - 1 ) * Math.pow( 2, mantissa_length );
+      exponent = exponent + bias;
+    } else {
+      mantissa =
+        data * Math.pow( 2, bias - 1 ) * Math.pow( 2, mantissa_length );
+      exponent = 0;
+    }
+
+    for (;
+      mantissa_length >= 8;
+      double64.push( mantissa & 0xFF ), mantissa /= 256, mantissa_length -= 8
+    );
+
+    exponent = ( exponent << mantissa_length ) | mantissa;
+    exponent_length += mantissa_length;
+    for (;
+      exponent_length > 0;
+      double64.push( exponent & 0xFF ), exponent /= 256, exponent_length -= 8
+    );
+
+    double64[ 7 ] |= sign * 128;
+    return String.fromCharCode.apply( String, double64 );
+  };
+
+  /* ********************************************************************** */
+
 }( this );
