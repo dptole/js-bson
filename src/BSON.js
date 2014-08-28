@@ -396,4 +396,50 @@
 
   /* ********************************************************************** */
 
+  function toBoolean( key, value ) {
+    return TYPES.BOOLEAN.E + key + '\x00' + ( value ? '\x01' : '\x00' );
+  };
+
+  /* ********************************************************************** */
+
+  function toFunction( key, lambda ) {
+    if( lambda.isNative() )
+      throw new Error('Cannot encode native function ' + lambda.name + '.');
+    return lambda( key );
+  };
+
+  /* ********************************************************************** */
+
+  function toNumber( key, value, other_type ) {
+    if( ! Number.isFinite( value ) ) {
+      return ( other_type || TYPES.DOUBLE.E ) + key + '\x00' + (
+          isNaN( value )
+        ? '\x01\x00\x00\x00\x00\x00\xF0\x7F'
+        : '\x00\x00\x00\x00\x00\x00\xF0' + ( value === 1/0 ?'\x7F' : '\xFF' )
+      );
+    }
+    if( value < -2147483648 || value > 2147483647 )
+      return toNumber.int64( key, value, other_type );
+    if( ~~value !== value )
+      return toNumber.double64( key, value, other_type );
+    return toNumber.int32( key, value, other_type );
+  };
+
+  toNumber.int64 = function( key, value, other_type ) {
+    if( -9007199254740992 > value || value > 9007199254740992 )
+      return toNumber.double64( key, value, other_type );
+    return ( TYPES.INT64.E || other_type ) + key + '\x00'
+      + readAsInt64LE( value );
+  };
+  toNumber.int32 = function( key, value, other_type ) {
+    return ( TYPES.INT32.E || other_type ) + key + '\x00'
+      + readAsInt32LE( value );
+  };
+  toNumber.double64 = function( key, value, other_type ) {
+    return ( TYPES.DOUBLE.E || other_type ) + key + '\x00'
+      + readAsDouble64LE( value );
+  };
+
+  /* ********************************************************************** */
+
 }( this );
