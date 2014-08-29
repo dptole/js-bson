@@ -442,4 +442,43 @@
 
   /* ********************************************************************** */
 
+  function toObject( key, value ) {
+    if( value instanceof Array ) {
+      for(var i = 0, array = {}; i < value.length; i++)
+        array[ i ] = value[ i ];
+      return TYPES.ARRAY.E + key + '\x00' + encode( array );
+    }
+    if( value instanceof Date )
+      return TYPES.UTC_DATETIME.E + key + '\x00'
+             + readAsInt64LE( +value );
+    if( value === null )
+      return TYPES.NULL.E + key + '\x00';
+    if( value instanceof RegExp )
+      return ''
+        + TYPES.REGEXP.E + key + '\x00'
+        + value.source + '\x00'
+          + ( value.global     ? 'g' : '' )
+          + ( value.ignoreCase ? 'i' : '' )
+          + ( value.multiline  ? 'm' : '' )
+        + '\x00'
+      ;
+
+    return TYPES.DOCUMENT.E + key + '\x00' + encode( value );
+  };
+
+  /* ********************************************************************** */
+
+  function toString( key, value, other_type ) {
+    return ( other_type || TYPES.STRING.E ) + key + '\x00'
+           + readAsInt32LE( value.length + 1 ) + value + '\x00';
+  };
+
+  /* ********************************************************************** */
+
+  function toUndefined( key, _ ) {
+    return TYPES.UNDEFINED.E + key + '\x00';
+  };
+
+  /* ********************************************************************** */
+
 }( this );
