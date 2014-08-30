@@ -481,4 +481,79 @@
 
   /* ********************************************************************** */
 
+  global.BSON = {
+    encode: function( document ) { return encode( document ); },
+    decode: function( bson, offset, is_array ) {
+      return decode( Buffer( bson ), offset, is_array );
+    },
+
+    get BINARY_TYPE() { return {
+      UUID_OLD : TYPES.BINARY.UUID_OLD.E,
+      FUNCTION : TYPES.BINARY.FUNCTION.E,
+      GENERIC  : TYPES.BINARY.GENERIC.E,
+      BINARY   : TYPES.BINARY.BINARY.E,
+      UUID     : TYPES.BINARY.UUID.E,
+      MD5      : TYPES.BINARY.MD5.E
+    } },
+
+    binary: function( data, subtype ) {
+      if(
+        ! ~[
+          TYPES.BINARY.FUNCTION.E,
+          TYPES.BINARY.UUID_OLD.E,
+          TYPES.BINARY.GENERIC.E,
+          TYPES.BINARY.BINARY.E,
+          TYPES.BINARY.UUID.E,
+          TYPES.BINARY.MD5.E
+        ].indexOf( subtype ) && !( subtype >> 7 )
+      ) subtype = TYPES.BINARY.GENERIC.E;
+      
+      else if( subtype === TYPES.BINARY.UUID_OLD.E )
+        subtype === TYPES.BINARY.UUID.E
+      
+      else if( subtype === TYPES.BINARY.BINARY.E )
+        subtype === TYPES.GENERIC.UUID.E
+      
+      return function( key ) {
+        return ''
+          + TYPES.BINARY.E + key + '\x00' + readAsInt32LE( data.length )
+          + subtype + data;
+      };
+    },
+
+    jsFunction: function( lambda, variables ) {
+      var lambda_arguments =
+        lambda.toString().match(/^function[^(]*\(([^)]*)\)/)[1].split(',');
+      return BSON.jsCode( lambda.toString().replace(
+        /^function[^(]*\([^)]*\)[^{]*\{|\}[^}]*$/g, ''
+      ), variables, lambda_arguments );
+    },
+
+    jsCode: function( code, scope, args ) {
+      return typeof( code ) !== 'function'
+        ? function( key ) {
+          if( args instanceof Array ) {
+            if( typeof( scope ) !== 'object' || scope === null ) scope = {};
+            while( args.length )
+              scope['arguments[' + ( args.length - 1 ) + ']'] = args.pop();
+          }
+          if( scope === undefined )
+            return toString( key, code, TYPES.JS_CODE.E );
+
+          scope = BSON.encode( scope );
+          return ''
+            + TYPES.JS_CODE_W_S.E + key + '\x00'
+            // 1 = Scope trailing byte.
+            // 4 = To the length length.
+            // 5 = To the code length.
+            + readAsInt32LE( scope.length + code.length + 10 )
+            + readAsInt32LE( code.length + 1 ) + code + '\x00'
+            + scope;
+        }
+        : this.jsFunction( code, scope ) 
+      ;
+    },
+
+    jsCodeWithScope: function() { return this.jsCode.apply(this, arguments); }
+  };
 }( this );
