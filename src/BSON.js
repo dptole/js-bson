@@ -42,12 +42,32 @@
 
   /* ********************************************************************** */
 
-  Array.prototype.toLetter = function() {
+  // Array.prototype.toUnicode() -> String
+  // 
+  // Convert the array to the equivalent unicode characters code.
+  // Invalid codes become the U+0000 character.
+  // 
+  // Ex.:
+  //   [100, 112, 116, 111, 108, 101].toUnicode(); // 'dptole'
+  // 
+  Array.prototype.toUnicode = function() {
     return String.fromCharCode.apply(String, this);
   };
 
   /* ********************************************************************** */
 
+  // Function.prototype.isNative() -> Boolean
+  // 
+  // Checks if a function is native.
+  // Of course it is not accurate once languages don't usually differentiate
+  // between native/custom functions. But since people don't always edit the
+  // toString function of its functions it may be an option.
+  // I've created this validation to detect the error as soon as possible.
+  // 
+  // Ex.:
+  //   eval.isNative(); // true
+  //   (function _21th() { return new Date(2001,0,1); }).isNative(); // false
+  // 
   Function.prototype.isNative = function() {
     return /function[^(]*\([^)]*\)[^{]*\{[^[]*\[native code\][^}]*\}/
       .test( '' + this );
@@ -113,7 +133,7 @@
         ? is_array++ - 1
         : buffer.sliceWhile(
             function(octect) { return octect !== 0; }, offset
-          ).toArray().toLetter()
+          ).toArray().toUnicode()
       ;
       offset += key.toString().length + 1;
       switch(type) {
@@ -126,14 +146,14 @@
             , code_length = buffer.readInt32LE(code_length_offset)
             
             , code_offset = code_length_offset + 4
-            , code = buffer.toArray(code_offset, code_length - 1).toLetter()
+            , code = buffer.toArray(code_offset, code_length - 1).toUnicode()
 
             , variables_length_offset = code_offset + code.length + 1
             , variables_length = buffer.readInt32LE(variables_length_offset)
             , variables_encoded = buffer.toArray(
                   variables_length_offset,
                   variables_length
-                ).toLetter()
+                ).toUnicode()
             , variables = BSON.decode(variables_encoded)
           ;
 
@@ -143,7 +163,7 @@
 
         case TYPES.JS_CODE.D:
           var code_length = buffer.readInt32LE(offset)
-            , code = buffer.toArray( offset + 4, code_length - 1 ).toLetter()
+            , code = buffer.toArray( offset + 4, code_length - 1 ).toUnicode()
           ;
           decoded[key] = Function(code);
           offset += code_length + 4;
@@ -156,7 +176,7 @@
                 buffer.readInt32LE(offset)
                 - ( TYPES.STRING.D === type )
           ;
-          decoded[key] = buffer.toArray(start, end).toLetter();
+          decoded[key] = buffer.toArray(start, end).toUnicode();
 
           if( TYPES.BINARY.D === type )
             decoded[key] = Binary(
@@ -213,7 +233,7 @@
                 offset + source.length + 1
               ).toArray()
           ;
-          decoded[key] = new RegExp(source.toLetter(), modifiers.toLetter());
+          decoded[key] = new RegExp(source.toUnicode(), modifiers.toUnicode());
           offset += source.length + modifiers.length + 1;
         break;
 
@@ -287,7 +307,7 @@
     );
 
     double64[7] |= sign * 128;
-    return double64.toLetter();
+    return double64.toUnicode();
   };
 
   /* ********************************************************************** */
