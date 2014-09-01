@@ -44,8 +44,8 @@
 
   Array.prototype.reverse = Array.prototype.reverse || function() {
     for(var i = 0, tmp = null, pivot = this.length / 2; i < pivot; i ++) {
-      tmp = this[ i ];
-      this[ i ] = this[ this.length - i - 1 ];
+      tmp = this[i];
+      this[i] = this[ this.length - i - 1 ];
       this[ this.length - i - 1 ] = tmp;
     }
     return this;
@@ -53,7 +53,13 @@
 
   /* ********************************************************************** */
 
-  Object.create = Object.create || function( object ) {
+  Array.prototype.toLetter = function() {
+    return String.fromCharCode.apply(String, this);
+  };
+
+  /* ********************************************************************** */
+
+  Object.create = Object.create || function(object) {
     function F() {}; F.prototype = object; return new F;
   };
 
@@ -66,19 +72,19 @@
 
   /* ********************************************************************** */
 
-  function createFunction( code, variables ) {
-    if( typeof( variables ) === 'object' && null !== variables )
+  function createFunction(code, variables) {
+    if( typeof(variables) === 'object' && null !== variables )
       var var_list = []
         , args = []
       ;
       for( var name in variables ) {
-        if( /arguments\[\d+\]/.test( name ) )
-          args.push( variables[ name ] );
+        if( /arguments\[\d+\]/.test(name) )
+          args.push( variables[name] );
         else
-          var_list.push( name + ' = ' + variables[ name ] );
+          var_list.push( name + ' = ' + variables[name] );
       }
       
-      if( var_list.length )
+      if(var_list.length)
         var_list = 'var ' + var_list.join('\n  , ') + '\n;\n';
       
       args.push( var_list + code );
@@ -87,13 +93,13 @@
 
   /* ********************************************************************** */
 
-  function encode( doc ) {
-    return encode.core( doc, Object.getOwnPropertyNames( doc ), '', 0 );
+  function encode(document) {
+    return encode.core(document, Object.getOwnPropertyNames(document), '', 0);
   };
-  encode.core = function( document, properties, bson, i ) {
+  encode.core = function(document, properties, bson, i) {
     for(; i < properties.length; i++)
       bson += ENCODE_FUNCTIONS[ typeof( document[ properties[ i ] ] ) ](
-        properties[ i ],
+        properties[i],
         document[ properties[ i ] ]
       );
 
@@ -102,12 +108,12 @@
 
   /* ********************************************************************** */
 
-  function decode( buffer, is_array ) {
+  function decode(buffer, is_array) {
     var offset = 0
       , key = null
       , type = null
       , decoded = is_array ? [] : {}
-      , length = buffer.readInt32LE( offset )
+      , length = buffer.readInt32LE(offset)
     ;
 
     if( length !== buffer.length )
@@ -122,50 +128,41 @@
 
       key = is_array
         ? is_array++ - 1
-        : String.fromCharCode.apply(
-            String,
-            buffer.sliceWhile(
-              function( octect ) { return octect !== 0; }, offset
-            ).toArray()
-          )
+        : buffer.sliceWhile(
+            function(octect) { return octect !== 0; }, offset
+          ).toArray().toLetter()
       ;
       offset += key.toString().length + 1;
-      switch( type ) {
+      switch(type) {
         case 0: break;
 
         case TYPES.JS_CODE_W_S.D:
-          var data_type_length = buffer.readInt32LE( offset )
+          var data_type_length = buffer.readInt32LE(offset)
             
             , code_length_offset = offset + 4
-            , code_length = buffer.readInt32LE( code_length_offset )
+            , code_length = buffer.readInt32LE(code_length_offset)
             
             , code_offset = code_length_offset + 4
-            , code = String.fromCharCode.apply(
-                String,
-                buffer.toArray( code_offset, code_length - 1 )
-              )
-            
+            , code = buffer.toArray(code_offset, code_length - 1).toLetter()
+
             , variables_length_offset = code_offset + code.length + 1
-            , variables_length = buffer.readInt32LE( variables_length_offset )
-            , variables_encoded = String.fromCharCode.apply(
-                String,
-                buffer.toArray( variables_length_offset, variables_length )
-              )
-            , variables = BSON.decode( variables_encoded )
+            , variables_length = buffer.readInt32LE(variables_length_offset)
+            , variables_encoded = buffer.toArray(
+                  variables_length_offset,
+                  variables_length
+                ).toLetter()
+            , variables = BSON.decode(variables_encoded)
           ;
 
-          decoded[ key ] = createFunction( code, variables );
+          decoded[key] = createFunction(code, variables);
           offset += data_type_length;
         break;
 
         case TYPES.JS_CODE.D:
-          var code_length = buffer.readInt32LE( offset )
-            , code = String.fromCharCode.apply(
-                String,
-                buffer.toArray( offset + 4, code_length - 1 )
-              )
+          var code_length = buffer.readInt32LE(offset)
+            , code = buffer.toArray( offset + 4, code_length - 1 ).toLetter()
           ;
-          decoded[ key ] = Function( code );
+          decoded[key] = Function(code);
           offset += code_length + 4;
         break;
 
@@ -173,73 +170,68 @@
         case TYPES.STRING.D:
           var start = offset + 4 + ( TYPES.BINARY.D === type )
             , end =
-                buffer.readInt32LE( offset )
-                - (TYPES.STRING.D === type)
+                buffer.readInt32LE(offset)
+                - ( TYPES.STRING.D === type )
           ;
-
-          decoded[ key ] = String.fromCharCode.apply(
-            String, buffer.toArray( start, end )
-          );
+          decoded[key] = buffer.toArray(start, end).toLetter();
 
           if( TYPES.BINARY.D === type )
-            decoded[ key ] = Binary(
-              decoded[ key ],
+            decoded[key] = Binary(
+              decoded[key],
               buffer.pick( offset + 4 )
             );
 
-          offset += decoded[ key ].length + 4;
+          offset += decoded[key].length + 4;
         break;
 
         case TYPES.DOCUMENT.D:
         case TYPES.ARRAY.D:
-          var _offset = buffer.readInt32LE( offset );
-          decoded[ key ] = decode(
-            buffer.slice( offset, _offset ), TYPES.ARRAY.D === type
+          var end_offset = buffer.readInt32LE(offset);
+          decoded[key] = decode(
+            buffer.slice( offset, end_offset ), TYPES.ARRAY.D === type
           );
-          offset += _offset - 1;
+          offset += end_offset - 1;
         break;
 
         case TYPES.BOOLEAN.D:
-          decoded[ key ] = !!buffer.pick( offset );
+          decoded[key] = !!buffer.pick(offset);
         break;
 
         case TYPES.UNDEFINED.D:
         case TYPES.NULL.D:
-          decoded[ key ] = TYPES.NULL.D === type ? null : undefined;
+          decoded[key] = TYPES.NULL.D === type ? null : undefined;
           offset--;
         break;
 
         case TYPES.INT32.D:
-          decoded[ key ] = buffer.readInt32LE( offset, 4 ); offset += 3;
+          decoded[key] = buffer.readInt32LE(offset, 4);
+          offset += 3;
         break;
 
         case TYPES.UTC_DATETIME.D:
+        case TYPES.DOUBLE.D:
         case TYPES.INT64.D:
-          decoded[ key ] = buffer.readInt64LE( offset );
-          if( TYPES.UTC_DATETIME.D === type )
-            decoded[ key ] = new Date( decoded[ key ] );
+          decoded[key] = TYPES.UTC_DATETIME.D === type
+            ? new Date( buffer.readInt64LE( offset ) )
+            : ( TYPES.DOUBLE.D === type
+                ? buffer.readFloat64LE(offset)
+                : new Int64( buffer.toArray( offset, 8 ) )
+              )
+          ;
           offset += 7;
         break;
 
         case TYPES.REGEXP.D:
           var source = buffer.sliceWhile(
-                function( octect ) { return octect !== 0; }, offset
+                function(octect) { return octect !== 0; }, offset
               ).toArray()
             , modifiers = buffer.sliceWhile(
-                function( octect ) { return octect !== 0; }
-                , offset + source.length + 1
+                function(octect) { return octect !== 0; },
+                offset + source.length + 1
               ).toArray()
           ;
-          decoded[ key ] = new RegExp(
-            String.fromCharCode.apply( String, source ),
-            String.fromCharCode.apply( String, modifiers )
-          );
+          decoded[key] = new RegExp(source.toLetter(), modifiers.toLetter());
           offset += source.length + modifiers.length + 1;
-        break;
-
-        case TYPES.DOUBLE.D:
-          decoded[ key ] = buffer.readFloat64LE( offset );
-          offset += 7;
         break;
 
         default: throw new Error('Unknown type ' + type );
@@ -253,7 +245,7 @@
 
   /* ********************************************************************** */
 
-  function littleEndian( bytes, data ) {
+  function littleEndian(bytes, data) {
     if( data < 0 )
            if( bytes <= 4 ) data = 0x100000000         + data;
       else if( bytes <= 8 ) data = 0x10000000000000000 + data;
@@ -267,12 +259,12 @@
     return String.fromCharCode.apply( String, buffer );
   };
 
-  function readAsInt32LE( data ) { return littleEndian( 4, data ); };
-  function readAsInt64LE( data ) { return littleEndian( 8, data ); };
+  function readAsInt32LE(data) { return littleEndian(4, data); };
+  function readAsInt64LE(data) { return littleEndian(8, data); };
   
   /* ********************************************************************** */
 
-  function readAsDouble64LE( data ) {
+  function readAsDouble64LE(data) {
     var double64 = []
       , bias = 1023
       , max_bias = 2047
@@ -311,63 +303,62 @@
       double64.push( exponent & 0xFF ), exponent /= 256, exponent_length -= 8
     );
 
-    double64[ 7 ] |= sign * 128;
-    return String.fromCharCode.apply( String, double64 );
+    double64[7] |= sign * 128;
+    return double64.toLetter();
   };
 
   /* ********************************************************************** */
 
-  function toBoolean( key, value ) {
+  function toBoolean(key, value) {
     return TYPES.BOOLEAN.E + key + '\x00' + ( value ? '\x01' : '\x00' );
   };
 
   /* ********************************************************************** */
 
-  function toFunction( key, lambda ) {
+  function toFunction(key, lambda) {
     if( lambda.isNative() )
       throw new Error('Cannot encode native function ' + lambda.name + '.');
-    return lambda( key );
+    return lambda(key);
   };
 
   /* ********************************************************************** */
 
-  function toNumber( key, value, other_type ) {
+  function toNumber(key, value, other_type) {
     if( ! Number.isFinite( value ) ) {
       return ( other_type || TYPES.DOUBLE.E ) + key + '\x00' + (
-          isNaN( value )
+          isNaN(value)
         ? '\x01\x00\x00\x00\x00\x00\xF0\x7F'
         : '\x00\x00\x00\x00\x00\x00\xF0' + ( value === 1/0 ?'\x7F' : '\xFF' )
       );
     }
     if( value < -2147483648 || value > 2147483647 )
-      return toNumber.int64( key, value, other_type );
+      return toNumber.int64(key, value, other_type);
     if( ~~value !== value )
-      return toNumber.double64( key, value, other_type );
-    return toNumber.int32( key, value, other_type );
+      return toNumber.double64(key, value, other_type);
+    return toNumber.int32(key, value, other_type);
   };
 
-  toNumber.int64 = function( key, value, other_type ) {
-    if( -9007199254740992 > value || value > 9007199254740992 )
-      return toNumber.double64( key, value, other_type );
-    return ( TYPES.INT64.E || other_type ) + key + '\x00'
-      + readAsInt64LE( value );
+  toNumber.int64 = function(key, value, other_type) {
+    // An int64 is converted as double64 because JavaScript fails to
+    // handle 32bit+ numbers. So it's safer to encode as a double64.
+    return toNumber.double64(key, value, other_type);
   };
-  toNumber.int32 = function( key, value, other_type ) {
+  toNumber.int32 = function(key, value, other_type) {
     return ( TYPES.INT32.E || other_type ) + key + '\x00'
-      + readAsInt32LE( value );
+      + readAsInt32LE(value);
   };
   toNumber.double64 = function( key, value, other_type ) {
     return ( TYPES.DOUBLE.E || other_type ) + key + '\x00'
-      + readAsDouble64LE( value );
+      + readAsDouble64LE(value);
   };
 
   /* ********************************************************************** */
 
-  function toObject( key, value ) {
+  function toObject(key, value) {
     if( value instanceof Array ) {
       for(var i = 0, array = {}; i < value.length; i++)
-        array[ i ] = value[ i ];
-      return TYPES.ARRAY.E + key + '\x00' + encode( array );
+        array[i] = value[i];
+      return TYPES.ARRAY.E + key + '\x00' + encode(array);
     }
     if( value instanceof Date )
       return TYPES.UTC_DATETIME.E + key + '\x00'
@@ -384,29 +375,27 @@
         + '\x00'
       ;
 
-    return TYPES.DOCUMENT.E + key + '\x00' + encode( value );
+    return TYPES.DOCUMENT.E + key + '\x00' + encode(value);
   };
 
   /* ********************************************************************** */
 
-  function toString( key, value, other_type ) {
+  function toString(key, value, other_type) {
     return ( other_type || TYPES.STRING.E ) + key + '\x00'
            + readAsInt32LE( value.length + 1 ) + value + '\x00';
   };
 
   /* ********************************************************************** */
 
-  function toUndefined( key, _ ) {
+  function toUndefined(key, _) {
     return TYPES.UNDEFINED.E + key + '\x00';
   };
 
   /* ********************************************************************** */
 
   global.BSON = {
-    encode: function( document ) { return encode( document ); },
-    decode: function( bson, offset, is_array ) {
-      return decode( Buffer( bson ), offset, is_array );
-    },
+    encode: function(document) { return encode(document); },
+    decode: function(bson) { return decode( Buffer(bson), 0, false ); },
 
     get BINARY_TYPE() { return {
       UUID_OLD : TYPES.BINARY.UUID_OLD.E,
@@ -417,7 +406,7 @@
       MD5      : TYPES.BINARY.MD5.E
     } },
 
-    binary: function( data, subtype ) {
+    binary: function(data, subtype) {
       if(
         ! ~[
           TYPES.BINARY.FUNCTION.E,
@@ -435,14 +424,14 @@
       else if( subtype === TYPES.BINARY.BINARY.E )
         subtype === TYPES.GENERIC.UUID.E
       
-      return function( key ) {
+      return function(key) {
         return ''
-          + TYPES.BINARY.E + key + '\x00' + readAsInt32LE( data.length )
+          + TYPES.BINARY.E + key + '\x00' + readAsInt32LE(data.length)
           + subtype + data;
       };
     },
 
-    jsFunction: function( lambda, variables ) {
+    jsFunction: function(lambda, variables) {
       var lambda_arguments =
         lambda.toString().match(/^function[^(]*\(([^)]*)\)/)[1].split(',');
       return BSON.jsCode( lambda.toString().replace(
@@ -450,7 +439,7 @@
       ), variables, lambda_arguments );
     },
 
-    jsCode: function( code, scope, args ) {
+    jsCode: function(code, scope, args) {
       return typeof( code ) !== 'function'
         ? function( key ) {
           if( args instanceof Array ) {
@@ -461,20 +450,23 @@
           if( scope === undefined )
             return toString( key, code, TYPES.JS_CODE.E );
 
-          scope = BSON.encode( scope );
+          scope = BSON.encode(scope);
           return ''
             + TYPES.JS_CODE_W_S.E + key + '\x00'
-            // 1 = Scope trailing byte.
-            // 4 = To the length length.
-            // 5 = To the code length.
+            // The + 10 down there is the sum of 1 + 4 + 5, where:
+            // 1 = To the scope trailing byte.
+            // 4 = To the length of the length.
+            // 5 = To the code length(length of the length(4) + the 0byte(1)).
             + readAsInt32LE( scope.length + code.length + 10 )
             + readAsInt32LE( code.length + 1 ) + code + '\x00'
             + scope;
         }
-        : this.jsFunction( code, scope ) 
+        : this.jsFunction(code, scope)
       ;
     },
 
     jsCodeWithScope: function() { return this.jsCode.apply(this, arguments); }
   };
-}( this );
+
+  Object.freeze(global.BSON);
+}(this);

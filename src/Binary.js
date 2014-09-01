@@ -8,4 +8,5 @@
   };
 
   global.Binary = Binary;
+  Object.freeze(global.Binary);
 }( this );
