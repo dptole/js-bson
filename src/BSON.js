@@ -42,25 +42,8 @@
 
   /* ********************************************************************** */
 
-  Array.prototype.reverse = Array.prototype.reverse || function() {
-    for(var i = 0, tmp = null, pivot = this.length / 2; i < pivot; i ++) {
-      tmp = this[i];
-      this[i] = this[ this.length - i - 1 ];
-      this[ this.length - i - 1 ] = tmp;
-    }
-    return this;
-  };
-
-  /* ********************************************************************** */
-
   Array.prototype.toLetter = function() {
     return String.fromCharCode.apply(String, this);
-  };
-
-  /* ********************************************************************** */
-
-  Object.create = Object.create || function(object) {
-    function F() {}; F.prototype = object; return new F;
   };
 
   /* ********************************************************************** */
