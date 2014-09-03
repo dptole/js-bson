@@ -42,32 +42,36 @@
 
   /* ********************************************************************** */
 
-  // Array.prototype.toUnicode() -> String
-  // 
-  // Convert the array to the equivalent unicode characters code.
-  // Invalid codes become the U+0000 character.
-  // 
-  // Ex.:
-  //   [100, 112, 116, 111, 108, 101].toUnicode(); // 'dptole'
-  // 
+  /* 
+  Array.prototype.toUnicode() -> String
+
+  Convert the array to the equivalent unicode characters code.
+  Invalid codes become the U+0000 character.
+
+  Ex.:
+    [100, 112, 116, 111, 108, 101].toUnicode(); // 'dptole'
+
+  */
   Array.prototype.toUnicode = function() {
     return String.fromCharCode.apply(String, this);
   };
 
   /* ********************************************************************** */
 
-  // Function.prototype.isNative() -> Boolean
-  // 
-  // Checks if a function is native.
-  // Of course it is not accurate once languages don't usually differentiate
-  // between native/custom functions. But since people don't always edit the
-  // toString function of its functions it may be an option.
-  // I've created this validation to detect the error as soon as possible.
-  // 
-  // Ex.:
-  //   eval.isNative(); // true
-  //   (function _21th() { return new Date(2001,0,1); }).isNative(); // false
-  // 
+  /* 
+  Function.prototype.isNative() -> Boolean
+
+  Checks if a function is native.
+  Of course it is not accurate once languages don't usually differentiate
+  between native/custom functions. But since people don't always edit the
+  toString function of its functions it may be an option.
+  I've created this validation to detect the error as soon as possible.
+
+  Ex.:
+    eval.isNative(); // true
+    (function _21th() { return new Date(2001,0,1); }).isNative(); // false
+
+  */
   Function.prototype.isNative = function() {
     return /function[^(]*\([^)]*\)[^{]*\{[^[]*\[native code\][^}]*\}/
       .test( '' + this );
@@ -75,23 +79,59 @@
 
   /* ********************************************************************** */
 
+  /* 
+  createFunction( code[, variables ] ) -> Function
+
+  code -> String
+  variables -> Object
+
+  Creates a function given the code and the variables.
+  The keys in the variables object are interpreted as follows:
+
+    If some key has the following pattern 'arguments[N]', where N may
+    represent any number, this variable will be added as a argument of the
+    function in the Nth position, otherwise it will be a regular variable.
+
+  If the code string isn't a valid JavaScript code it throws a SyntaxError.
+
+  Ex.:
+    var
+    fun1 = createFunction(
+      'return condition() ? if_true : otherwise', {
+      'arguments[0]': 'condition',
+      'arguments[1]': 'if_true',
+      'arguments[2]': 'otherwise'
+    }),
+    fun2 = createFunction(
+      'return (initial + (offset | 0)) % 100', {
+      'initial': (new Date).getSeconds(),
+      'arguments[0]': 'offset'
+    });
+    fun1(function(){return +new Date & 1;}, 'odd', 'even');
+    fun2(Math.random() * 100);
+
+  */
   function createFunction(code, variables) {
-    if( typeof(variables) === 'object' && null !== variables )
-      var var_list = []
-        , args = []
-      ;
+    var var_list = []
+      , args = []
+    ;
+
+    if( typeof(variables) === 'object' && null !== variables ) {
       for( var name in variables ) {
-        if( /arguments\[\d+\]/.test(name) )
-          args.push( variables[name] );
+        if( /arguments\[(\d+)\]/.exec(name) )
+          args[RegExp.$1] = variables[name];
         else
           var_list.push( name + ' = ' + variables[name] );
       }
-      
-      if(var_list.length)
-        var_list = 'var ' + var_list.join('\n  , ') + '\n;\n';
-      
-      args.push( var_list + code );
-      return Function.apply( Function, args );
+    }
+
+    var_list = var_list.length
+      ? 'var ' + var_list.join('\n  , ') + '\n;\n'
+      : ''
+    ;
+
+    args.push( var_list + code );
+    return Function.apply( Function, args );
   };
 
   /* ********************************************************************** */
