@@ -136,6 +136,26 @@
 
   /* ********************************************************************** */
 
+  /*
+  encode( document ) -> String
+
+  document -> Object
+
+  Converts the JavaScript Object into a BSON document.
+
+  Ex.:
+    var document = BSON.encode({
+      eggs: true,
+      bacon: "spam spam spam spam spam",
+      knights: [{
+        name: "Knight 1", atk: 10, def: 5
+      }, {
+        name: "Knight 2", atk: 5, def: 10
+      }]
+    }); // BSON stuff
+    var object = BSON.decode( document ); // JavaScript object
+
+  */
   function encode(document) {
     return encode.core(document, Object.getOwnPropertyNames(document), '', 0);
   };
