@@ -77,5 +77,4 @@
   };
 
   global.Buffer = Buffer;
-  Object.freeze(global.Buffer);
 }( this );
