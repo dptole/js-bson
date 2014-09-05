@@ -11,7 +11,7 @@ Support
 Data type | Supported | Description
 --------- | --------- | -----------
 Double | Yes | 64-bit IEEE 754 floating point.
-String | Yes | Int32 length UTF-8 string, excluding the 0x00 character.
+String | Yes | Int32 length UTF-8 string.
 Document(Object) | Yes | A BSON document.
 Array | Yes | A BSON document number indexed.
 Binary | Yes | A `Binary` instance with a `subtype` property.
