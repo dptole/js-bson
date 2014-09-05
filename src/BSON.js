@@ -142,9 +142,10 @@
   document -> Object
 
   Converts the JavaScript Object into a BSON document.
+  This function works as a helper to the BSON.encode.
 
   Ex.:
-    var document = BSON.encode({
+    var document = encode({
       eggs: true,
       bacon: "spam spam spam spam spam",
       knights: [{
@@ -153,10 +154,10 @@
         name: "Knight 2", atk: 5, def: 10
       }]
     }); // BSON stuff
-    var object = BSON.decode( document ); // JavaScript object
+    var object = decode( document ); // JavaScript object
 
   */
-  function encode(document) {
+  window.encode = function encode(document) {
     return encode.core(document, Object.getOwnPropertyNames(document), '', 0);
   };
   encode.core = function(document, properties, bson, i) {
@@ -171,7 +172,28 @@
 
   /* ********************************************************************** */
 
-  function decode(buffer, is_array) {
+  /*
+  decode( bson, is_array ) -> Object
+
+  bson -> String
+  is_array -> Boolean
+
+  Converts the BSON document into a JavaScript Object.
+  This function works as a helper to the BSON.decode.
+
+  Ex.:
+    var object = decode(
+      '\x27\x00\x00\x00' +
+        '\x10\x6e\x75\x6d\x62\x65\x72\x00' +
+          '\x39\x30\x00\x00' +
+        '\x02\x73\x74\x72\x69\x6e\x67\x00' +
+          '\x00\x00\x00\x68' +
+          '\x65\x79\x20\x62\x75\x64\x64\x79\x00' +
+      '\x00'
+    ); // {"number": 12345, "string": "key buddy"}
+
+  */
+  window.decode = function decode(buffer, is_array) {
     var offset = 0
       , key = null
       , type = null
@@ -457,8 +479,8 @@
   /* ********************************************************************** */
 
   global.BSON = {
-    encode: function(document) { return encode(document); },
-    decode: function(bson) { return decode( Buffer(bson), 0, false ); },
+    encode: function( document ) { return encode( document ); },
+    decode: function( bson ) { return decode( Buffer( bson ), false ); },
 
     get BINARY_TYPE() { return {
       UUID_OLD : TYPES.BINARY.UUID_OLD.E,
