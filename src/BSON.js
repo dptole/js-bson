@@ -157,7 +157,7 @@
     var object = decode( document ); // JavaScript object
 
   */
-  window.encode = function encode(document) {
+  function encode(document) {
     return encode.core(document, Object.getOwnPropertyNames(document), '', 0);
   };
   encode.core = function(document, properties, bson, i) {
@@ -193,7 +193,7 @@
     ); // {"number": 12345, "string": "key buddy"}
 
   */
-  window.decode = function decode(buffer, is_array) {
+  function decode(buffer, is_array) {
     var offset = 0
       , key = null
       , type = null
@@ -330,6 +330,32 @@
 
   /* ********************************************************************** */
 
+  /*
+  littleEndian( bytes, data ) -> String
+
+  bytes -> Number
+  data -> Number
+
+  Gets a little endian binary representation of the value stored in `data`
+  containing `bytes` number of octects.
+
+                              +---------+
+  +---------------------------| Warning |---------------------------+
+  |                           +---------+                           |
+  |                                                                 |
+  | Numbers greater than 9007199254740991(2^53-1) or lesser than    |
+  | -9007199254740991(-(2^53)+1) are not precisely calculated.      |
+  |                                                                 |
+  +-----------------------------------------------------------------+
+
+  Ex.:
+    var i32 = littleEndian(4, 123456);     // '\x40\xE2\x01\x00'
+    var i64 = littleEndian(8, 4567890123); // '\xcb\x78\x44\x10\x01\x00\x00\x00'
+
+  More info:
+    <http://migre.me/lukzt>
+
+  */
   function littleEndian(bytes, data) {
     if( data < 0 )
            if( bytes <= 4 ) data = 0x100000000         + data;
@@ -343,7 +369,6 @@
 
     return String.fromCharCode.apply( String, buffer );
   };
-
   function readAsInt32LE(data) { return littleEndian(4, data); };
   function readAsInt64LE(data) { return littleEndian(8, data); };
   

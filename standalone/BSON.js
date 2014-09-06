@@ -573,6 +573,27 @@
 
   /* ********************************************************************** */
 
+  /*
+  decode( bson, is_array ) -> Object
+
+  bson -> String
+  is_array -> Boolean
+
+  Converts the BSON document into a JavaScript Object.
+  This function works as a helper to the BSON.decode.
+
+  Ex.:
+    var object = decode(
+      '\x27\x00\x00\x00' +
+        '\x10\x6e\x75\x6d\x62\x65\x72\x00' +
+          '\x39\x30\x00\x00' +
+        '\x02\x73\x74\x72\x69\x6e\x67\x00' +
+          '\x00\x00\x00\x68' +
+          '\x65\x79\x20\x62\x75\x64\x64\x79\x00' +
+      '\x00'
+    ); // {"number": 12345, "string": "key buddy"}
+
+  */
   function decode(buffer, is_array) {
     var offset = 0
       , key = null
@@ -710,6 +731,32 @@
 
   /* ********************************************************************** */
 
+  /*
+  littleEndian( bytes, data ) -> String
+
+  bytes -> Number
+  data -> Number
+
+  Gets a little endian binary representation of the value stored in `data`
+  containing `bytes` number of octects.
+
+                              +---------+
+  +---------------------------| Warning |---------------------------+
+  |                           +---------+                           |
+  |                                                                 |
+  | Numbers greater than 9007199254740991(2^53-1) or lesser than    |
+  | -9007199254740991(-(2^53)+1) are not precisely calculated.      |
+  |                                                                 |
+  +-----------------------------------------------------------------+
+
+  Ex.:
+    var i32 = littleEndian(4, 123456);     // '\x40\xE2\x01\x00'
+    var i64 = littleEndian(8, 4567890123); // '\xcb\x78\x44\x10\x01\x00\x00\x00'
+
+  More info:
+    <http://migre.me/lukzt>
+
+  */
   function littleEndian(bytes, data) {
     if( data < 0 )
            if( bytes <= 4 ) data = 0x100000000         + data;
@@ -859,8 +906,8 @@
   /* ********************************************************************** */
 
   global.BSON = {
-    encode: function(document) { return encode(document); },
-    decode: function(bson) { return decode( Buffer(bson), 0, false ); },
+    encode: function( document ) { return encode( document ); },
+    decode: function( bson ) { return decode( Buffer( bson ), false ); },
 
     get BINARY_TYPE() { return {
       UUID_OLD : TYPES.BINARY.UUID_OLD.E,
