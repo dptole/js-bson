@@ -454,9 +454,13 @@
     [100, 112, 116, 111, 108, 101].toUnicode(); // 'dptole'
 
   */
-  Array.prototype.toUnicode = function() {
-    return String.fromCharCode.apply(String, this);
-  };
+  Object.defineProperty(Array.prototype, 'toUnicode', {
+    value: function() {
+      return String.fromCharCode.apply(String, this);
+    },
+    enumerable: false,
+    configurable: false
+  });
 
   /* ********************************************************************** */
 
@@ -474,10 +478,14 @@
     (function _21th() { return new Date(2001,0,1); }).isNative(); // false
 
   */
-  Function.prototype.isNative = function() {
-    return /function[^(]*\([^)]*\)[^{]*\{[^[]*\[native code\][^}]*\}/
-      .test( '' + this );
-  };
+  Object.defineProperty(Function.prototype, 'isNative', {
+    value: function() {
+      return /function[^(]*\([^)]*\)[^{]*\{[^[]*\[native code\][^}]*\}/
+        .test( '' + this );
+    },
+    enumerable: false,
+    configurable: false
+  });
 
   /* ********************************************************************** */
 
