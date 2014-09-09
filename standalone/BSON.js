@@ -842,12 +842,42 @@
 
   /* ********************************************************************** */
 
+  /*
+  toBoolean( key, value ) -> String
+
+  key -> String
+  value -> Boolean
+
+  Converts boolean values to BSON format.
+
+  Ex.:
+    var t = toBoolean('key', true);  // \x08\x6b\x65\x79\x00\x01
+    var f = toBoolean('key', false); // \x08\x6b\x65\x79\x00\x00
+
+  */
   function toBoolean(key, value) {
     return TYPES.BOOLEAN.E + key + '\x00' + ( value ? '\x01' : '\x00' );
   };
 
   /* ********************************************************************** */
 
+  /*
+  toFunction( key, lambda ) -> String
+
+  key -> String
+  lambda ->
+    Function( key ) -> String
+    key -> String
+
+  This function is used internally to parse data types not present  in
+  JavaScript or those that need a pre-parsing.
+
+  Ex.:
+    var k1 = toFunction('def', function(key) {
+      return '\x81' + key + '\x00\x61\x62\x63\x00';
+    }); // \x81\x64\x65\x66\x00\x61\x62\x63\x00
+
+  */
   function toFunction(key, lambda) {
     if( lambda.isNative() )
       throw new Error('Cannot encode native function ' + lambda.name + '.');
