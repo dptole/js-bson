@@ -116,6 +116,7 @@
       exponent -= bias;
     }
 
+    buffer = buffer.reverse();
     return sign * mantissa * Math.pow(2, exponent - 52);
   };
 
@@ -784,12 +785,24 @@
   
   /* ********************************************************************** */
 
-  function readAsDouble64LE(data) {
+  /*
+  readAsDouble64LE( number ) -> String
+
+  number -> Number
+
+  Read the given number and return a IEEE754 double precision
+  version of it as string.
+
+  Ex.:
+    var ieee = readAsDouble64LE(123.456); // "\x77\xbe\x9f\x1a\x2f\xdd\x5e\x40"
+
+  */
+  function readAsDouble64LE(number) {
     var double64 = []
       , bias = 1023
       , max_bias = 2047
-      , sign = data < 0 ? 1 : 0
-      , data = Math.abs( data )
+      , sign = number < 0 ? 1 : 0
+      , data = Math.abs( number )
       , exponent = Math.floor( Math.log( data ) / Math.LN2 )
       , exponent_length = 11
       , mantissa = 0

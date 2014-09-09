@@ -73,6 +73,7 @@
       exponent -= bias;
     }
 
+    buffer = buffer.reverse();
     return sign * mantissa * Math.pow(2, exponent - 52);
   };
 
