@@ -893,9 +893,8 @@
   value -> Number
 
   Convert a number(including Infinity, -Infinity and NaN) to the BSON format
-  where:
-    Numbers between -2147483648 and 2147483647(inclusive) are converted into
-    int32 everything else is converted to double.
+  where numbers between -2147483648 and 2147483647(inclusive) are converted
+  into int32 and everything else is converted to double.
 
   Ex.:
     toNumber('d', 222);         // \x10\x64\x00\xde\x00\x00\x00
