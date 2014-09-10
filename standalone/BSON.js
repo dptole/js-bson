@@ -886,6 +886,26 @@
 
   /* ********************************************************************** */
 
+  /*
+  toNumber( key, value ) -> String
+
+  key -> String
+  value -> Number
+
+  Convert a number(including Infinity, -Infinity and NaN) to the BSON format
+  where:
+    Numbers between -2147483648 and 2147483647(inclusive) are converted into
+    int32 everything else is converted to double.
+
+  Ex.:
+    toNumber('d', 222);         // \x10\x64\x00\xde\x00\x00\x00
+    toNumber('p', NaN);         // \x01\x70\x00\x01\x00\x00\x00\x00\x00\xf0\x7f
+    toNumber('t', Infinity);    // \x01\x74\x00\x00\x00\x00\x00\x00\x00\xf0\x7f
+    toNumber('o', -Infinity);   // \x01\x6f\x00\x00\x00\x00\x00\x00\x00\xf0\xff
+    toNumber('l', 22.2);        // \x01\x6c\x00\x33\x33\x33\x33\x33\x33\x36\x40
+    toNumber('e', 0x1234567890);// \x01\x65\x00\x00\x00\x90\x78\x56\x34\x32\x42
+
+  */
   function toNumber(key, value, other_type) {
     if( ! Number.isFinite( value ) ) {
       return ( other_type || TYPES.DOUBLE.E ) + key + '\x00' + (

@@ -23,7 +23,6 @@ Null | Yes | Null JavaScript keyword.
 RegExp | Yes | `RegExp` instance.
 DB Pointer | No | *Deprecated*.
 JS Code | Yes | JavaScript code.
-Deprecated | No | *Deprecated*.
 JS Code with scope | Yes | JavaScript code with variables.
 Int32 | Yes | Integer 32 bit signed value.
 Timestamp | No | MongoDB [Timestamp](http://docs.mongodb.org/manual/reference/method/ObjectId.getTimestamp/) internal type used for replication.
