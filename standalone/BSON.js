@@ -936,6 +936,41 @@
 
   /* ********************************************************************** */
 
+  /*
+  toObject(key, value) -> String
+
+  key -> String
+  value -> Object | Array | Date | RegExp
+
+  Convets an object to the BSON format depending if it's an Array, Date, RegExp
+  or a regular JavaScript object.
+  Accordingly to the BSON format the RegExp second cstring includes i for
+  ignoreCase, m for multiline, x for verbose, l to make \w, \W, locale
+  dependent, s for dotall mode ('.' matches everything), and u to make \w, \W,
+  etc. match unicode, but in this I just added i, m and g for global matching.
+
+  Ex.:
+    toObject('array', [1,2,3])
+    // '\x04\x61\x72\x72\x61\x79\x00' ARRAY_TYPE + 'array' + '\x00'
+    //   '\x1a\x00\x00\x00'           DOCUMENT_LENGTH
+    //     '\x10\x30\x00'             INT32_TYPE + '0'(key name) + '\x00'
+    //     '\x01\x00\x00\x00'         1               (key value)
+    //     '\x10\x31\x00'             INT32_TYPE + '1'(key name) + '\x00'
+    //     '\x02\x00\x00\x00'         2               (key value)
+    //     '\x10\x32\x00'             INT32_TYPE + '2'(key name) + '\x00'
+    //     '\x03\x00\x00\x00'         3               (key value)
+    //   '\x00'                       DOCUMENT_END
+    
+    toObject('date', new Date(2011, 0))
+    // '\x09\x64\x61\x74\x65\x00'           DATE_TYPE + 'date' + '\x00'
+    //   '\x00\x81\x4d\x3f\x2d\x01\x00\x00' Int64 value to milliseconds
+    
+    toObject('regexp', /\+\d+/gm)
+    // '\x0b\x72\x65\x67\x65\x78\x70\x00' REGEXP_TYPE + 'regexp' + '\x00'
+    //   '\x5c\x2b\x5c\x64\x2b\x00'       '\+\d+' + '\x00'
+    //   '\x67x6d\x00'                    'gm' + '\x00'
+
+  */
   function toObject(key, value) {
     if( value instanceof Array ) {
       for(var i = 0, array = {}; i < value.length; i++)
