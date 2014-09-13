@@ -21,7 +21,7 @@ JS Code with scope | JavaScript code with variables.
 Null | Null JavaScript keyword.
 RegExp | `RegExp` instance.
 String | Int32 length UTF-8 string.
-Undefined | Undefined JavaScript keyword. identify documents.
+Undefined | Undefined JavaScript keyword. <blockquote>Accordingly to the BSON specification this type should be deprecated but, as long as JavaScript have a keyword specifically created to express this type of data, I will keep it.</blockquote>
 UTC Datetime | Unix epoch datetime in milliseconds.
 
 ## Not supported types
