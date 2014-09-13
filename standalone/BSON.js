@@ -997,6 +997,23 @@
 
   /* ********************************************************************** */
 
+  /*
+  toString( key, value[, other_type ] ) -> String
+
+  key -> String
+  value -> String
+  other_type -> String
+
+  Convets a JavaScript string into a BSON string.
+  The other_type argument is used internally only.
+
+  Ex.:
+    toString('name', 'dptole')
+    // '\x02\x6e\x61\x6d\x65\x00'       STRING_TYPE + 'name' + '\x00'
+    //   '\x07\x00\x00\x00'             Int32 string length + 1
+    //   '\x64\x70\x74\x6f\x6c\x65\x00' 'dptole' + '\x00'
+
+  */
   function toString(key, value, other_type) {
     return ( other_type || TYPES.STRING.E ) + key + '\x00'
            + readAsInt32LE( value.length + 1 ) + value + '\x00';
@@ -1004,7 +1021,23 @@
 
   /* ********************************************************************** */
 
-  function toUndefined(key, _) {
+  /*
+  toUndefined( key ) -> String
+
+  key -> String
+
+  Converts a JavaScript undefined into a BSON undefined.
+  Despite of the BSON undefined type is deprecated the JavaScript undefined is
+  not.
+
+  Ex.:
+    toUndefined('dp')
+    // '\x06\x64\x70\x00'         UNDEFINED_TYPE + 'dp' + '\x00'
+    toUndefined('tole')
+    // '\x06\x74\x6f\x6c\x65\x00' UNDEFINED_TYPE + 'tole' + '\x00'
+
+  */
+  function toUndefined(key) {
     return TYPES.UNDEFINED.E + key + '\x00';
   };
 
