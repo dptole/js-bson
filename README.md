@@ -8,7 +8,7 @@ JavaScript implementation of the [BSON](http://bsonspec.org/) specification.
 ## Supported types
 
 Data type | Description
---------- | ---------
+--------- | -----------
 Array | A BSON embedded document number indexed.
 Binary | A `Binary` instance with a `subtype` property.
 Boolean | Standard boolean.
@@ -42,7 +42,6 @@ To create a BSON document using JavaScript types:
 var encoded_bson = BSON.encode({
   login: 'dptole',                  // String
   id: 3951114,                      // Int32
-  website: undefined,               // Undefined
   gender: null,                     // Null
   ready_profile: 12.34,             // Double
   formats: /(jpe?g|mp[34]|html?)/,  // RegExp
@@ -55,4 +54,13 @@ var encoded_bson = BSON.encode({
 });
 ```
 
+Accordingly to the BSON specification the `undefined` type should be deprecated but, as long as JavaScript have a keyword specifically created to express this type of data, I will keep it.
+`Int64` is encoded as `Double` because of the lack of support of the Int32+ numbers by the JavaScript language.
+
+```javascript
+var encoded_bson = BSON.encode({
+  website: undefined,               // Undefined
+  timestamp: +new Date              // Int64 encoded as Double
+});
+```
 
