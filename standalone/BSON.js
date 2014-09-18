@@ -1059,25 +1059,21 @@
     binary: function(data, subtype) {
       if(
         ! ~[
-          TYPES.BINARY.FUNCTION.E,
-          TYPES.BINARY.UUID_OLD.E,
-          TYPES.BINARY.GENERIC.E,
-          TYPES.BINARY.BINARY.E,
-          TYPES.BINARY.UUID.E,
-          TYPES.BINARY.MD5.E
+          TYPES.BINARY.FUNCTION.D, TYPES.BINARY.UUID_OLD.D,
+          TYPES.BINARY.GENERIC.D,  TYPES.BINARY.BINARY.D,
+          TYPES.BINARY.UUID.D,     TYPES.BINARY.MD5.D
         ].indexOf( subtype ) && !( subtype >> 7 )
-      ) subtype = TYPES.BINARY.GENERIC.E;
-      
-      else if( subtype === TYPES.BINARY.UUID_OLD.E )
-        subtype === TYPES.BINARY.UUID.E
-      
-      else if( subtype === TYPES.BINARY.BINARY.E )
-        subtype === TYPES.GENERIC.UUID.E
-      
+      ) subtype = TYPES.BINARY.GENERIC.D;
+
+      if( subtype === TYPES.BINARY.UUID_OLD.D )
+        subtype = TYPES.BINARY.UUID.D;
+      else if( subtype === TYPES.BINARY.BINARY.D )
+        subtype = TYPES.BINARY.GENERIC.D;
+
       return function(key) {
         return ''
           + TYPES.BINARY.E + key + '\x00' + readAsInt32LE(data.length)
-          + subtype + data;
+          + String.fromCharCode(subtype) + data;
       };
     },
 
