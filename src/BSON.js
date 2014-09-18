@@ -669,7 +669,7 @@
       return function(key) {
         return ''
           + TYPES.BINARY.E + key + '\x00' + readAsInt32LE(data.length)
-          + String.fromCharCode(subtype) + data;
+          + String.fromCharCode(subtype & 255) + data;
       };
     },
 
