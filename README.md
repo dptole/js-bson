@@ -64,3 +64,17 @@ var encoded_bson = BSON.encode({
 });
 ```
 
+## Encoding Binary data
+
+Binary data can be encoded by calling `BSON.binary(data, substype)` where `data` may be any string and `substype` may be between 0x00-0x05 or 0x80-0xFF. Some castings may occur during `subtype` interpretation.
+
+Subtype | Casting
+------- | -------
+Binary (0x02) | Generic (0x00)
+UUID Old (0x03) | UUID (0x04)
+
+```javascript
+var encoded_bson = BSON.encode({
+  binary: BSON.binary('\x64\x70\x74\x6f\x6c\x65', 2)
+});
+```
