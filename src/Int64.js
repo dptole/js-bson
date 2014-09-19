@@ -13,9 +13,9 @@
       ;
 
       if( buffer[ buffer.length - 1 ] >> 7 )
-        instance.subtract( OCTECTS_VALUE[ buffer.length - 1 ] );
+        instance.subtract( OCTETS_VALUE[ buffer.length - 1 ] );
 
-      OCTECTS_VALUE.forEach(function( value, index ) {
+      OCTETS_VALUE.forEach(function( value, index ) {
         if( buffer[ index + 1 ] === undefined ) return false;
         instance.sum( Digit( value ).multiply( buffer[ index + 1 ] ) );
       });
@@ -91,13 +91,13 @@
     
     var instance = Digit( buffer[ 0 ].toString() );
     
-    OCTECTS_VALUE.forEach(function( value, index ) {
+    OCTETS_VALUE.forEach(function( value, index ) {
       if( buffer[ index + 1 ] === undefined ) return false;
       instance.sum( Digit( value ).multiply( buffer[ index + 1 ] ) );
     });
     
     if( buffer[ buffer.length - 1 ] >> 7 )
-      instance.subtract( OCTECTS_VALUE[ buffer.length - 1 ] );
+      instance.subtract( OCTETS_VALUE[ buffer.length - 1 ] );
     
     return instance;
   };
@@ -298,9 +298,9 @@
 
   /* ********************************************************************** */
 
-  SIGN_EXP = /^([+-]?)/;
-  SIGN_NEG_EXP = /^(\-?)/;
-  OCTECTS_VALUE = [
+  var SIGN_EXP = /^([+-]?)/;
+  var SIGN_NEG_EXP = /^(\-?)/;
+  var OCTETS_VALUE = [
     '256', // 8
     '65536', // 16
     '16777216', // 24

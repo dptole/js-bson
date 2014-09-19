@@ -222,7 +222,7 @@
       key = is_array
         ? is_array++ - 1
         : buffer.sliceWhile(
-            function(octect) { return octect !== 0; }, offset
+            function(octet) { return octet !== 0; }, offset
           ).toArray().toUnicode()
       ;
       offset += key.toString().length + 1;
@@ -316,10 +316,10 @@
 
         case TYPES.REGEXP.D:
           var source = buffer.sliceWhile(
-                function(octect) { return octect !== 0; }, offset
+                function(octet) { return octet !== 0; }, offset
               ).toArray()
             , modifiers = buffer.sliceWhile(
-                function(octect) { return octect !== 0; },
+                function(octet) { return octet !== 0; },
                 offset + source.length + 1
               ).toArray()
           ;
@@ -345,7 +345,7 @@
   data -> Number
 
   Gets a little endian binary representation of the value stored in `data`
-  containing `bytes` number of octects.
+  containing `bytes` number of octets.
 
                               +---------+
   +---------------------------| Warning |---------------------------+

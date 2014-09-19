@@ -146,9 +146,9 @@
       ;
 
       if( buffer[ buffer.length - 1 ] >> 7 )
-        instance.subtract( OCTECTS_VALUE[ buffer.length - 1 ] );
+        instance.subtract( OCTETS_VALUE[ buffer.length - 1 ] );
 
-      OCTECTS_VALUE.forEach(function( value, index ) {
+      OCTETS_VALUE.forEach(function( value, index ) {
         if( buffer[ index + 1 ] === undefined ) return false;
         instance.sum( Digit( value ).multiply( buffer[ index + 1 ] ) );
       });
@@ -223,13 +223,13 @@
     
     var instance = Digit( buffer[ 0 ].toString() );
     
-    OCTECTS_VALUE.forEach(function( value, index ) {
+    OCTETS_VALUE.forEach(function( value, index ) {
       if( buffer[ index + 1 ] === undefined ) return false;
       instance.sum( Digit( value ).multiply( buffer[ index + 1 ] ) );
     });
     
     if( buffer[ buffer.length - 1 ] >> 7 )
-      instance.subtract( OCTECTS_VALUE[ buffer.length - 1 ] );
+      instance.subtract( OCTETS_VALUE[ buffer.length - 1 ] );
     
     return instance;
   };
@@ -430,9 +430,9 @@
 
   /* ********************************************************************** */
 
-  SIGN_EXP = /^([+-]?)/;
-  SIGN_NEG_EXP = /^(\-?)/;
-  OCTECTS_VALUE = [
+  var SIGN_EXP = /^([+-]?)/;
+  var SIGN_NEG_EXP = /^(\-?)/;
+  var OCTETS_VALUE = [
     '256', // 8
     '65536', // 16
     '16777216', // 24
@@ -624,7 +624,7 @@
       key = is_array
         ? is_array++ - 1
         : buffer.sliceWhile(
-            function(octect) { return octect !== 0; }, offset
+            function(octet) { return octet !== 0; }, offset
           ).toArray().toUnicode()
       ;
       offset += key.toString().length + 1;
@@ -718,10 +718,10 @@
 
         case TYPES.REGEXP.D:
           var source = buffer.sliceWhile(
-                function(octect) { return octect !== 0; }, offset
+                function(octet) { return octet !== 0; }, offset
               ).toArray()
             , modifiers = buffer.sliceWhile(
-                function(octect) { return octect !== 0; },
+                function(octet) { return octet !== 0; },
                 offset + source.length + 1
               ).toArray()
           ;
@@ -747,7 +747,7 @@
   data -> Number
 
   Gets a little endian binary representation of the value stored in `data`
-  containing `bytes` number of octects.
+  containing `bytes` number of octets.
 
                               +---------+
   +---------------------------| Warning |---------------------------+
