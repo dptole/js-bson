@@ -78,3 +78,29 @@ var encoded_bson = BSON.encode({
   binary: BSON.binary('\x64\x70\x74\x6f\x6c\x65', 2)
 });
 ```
+
+## Encoding JS Code/JS Code with scope
+
+JS Code data can be encoded by calling `BSON.jsCode(code)` where `code` may be any string. The syntax is verified when decoding.
+
+```javascript
+var encoded_bson = BSON.encode({
+  fun: BSON.jsCode('return +new Date')
+});
+```
+
+JS Code with scope data can be encoded by calling `BSON.jsCodeWithScope(code, scope)` where `code` may be any string and `scope` is an object. Each key in `scope` will be a variable name within the JavaScript code and the key value is interpreted as JavaScript code.
+Thus in `{"func": "Math.random"}` we have a variable called `func` which refers to the `Math.random` function, while in `{"func": "'Math.random'"}` we have a variable called `func` which value is the string `"Math.random"`.
+This behaviour may be desirable when one peer must call internal functions at the other peer's environment but don't want to duplicate the code nor worry about code update.
+
+```javascript
+var encoded_bson = BSON.encode({
+  fun: BSON.jsCodeWithScope('return internal(origin, ts)', {
+    origin: '"My nick"',
+    internal: 'otherPeerFunction',
+    ts: +new Date
+  })
+});
+```
+
+
