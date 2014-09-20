@@ -203,3 +203,6 @@ var javascript_object = BSON.decode(encoded_bson);
 
 ```
 
+> Attention! **JS Code** and **JS Code with scope** may not work across other implementations because not all of them may support it. Consider using these types just within the same implementation.
+
+
