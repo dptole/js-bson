@@ -90,7 +90,12 @@
     for(var i = 0, value = 0; i < buffer.length;)
       value += buffer[ i ] * Math.pow( 2, 8 * i++ );
 
-    return value;
+    return value - (
+      buffer[buffer.length - 1] > 127 && (
+        buffer.length === 4 || buffer.length === 8 )
+      ? Math.pow(2, buffer.length * 8)
+      : 0
+    );
   };
 
   /* ********************************************************************** */
