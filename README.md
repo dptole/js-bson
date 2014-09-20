@@ -158,4 +158,48 @@ var javascript_object = BSON.decode(encoded_bson);
 
 ```
 
+### Encoding JS Code(functions) with arguments
+
+JS Code(functions) with arguments can be encoded by calling `BSON.jsFunction(lambda)` where `lambda` may be any user defined function.
+
+```javascript
+var encoded_bson = BSON.encode({
+  fun: BSON.jsFunction(function(a, b) {
+    return a + b;
+  })
+});
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.fun
+    function anonymous(a, b) {
+      return a + b;
+    }
+*/
+
+```
+
+### Encoding JS Code(functions) with arguments and scope
+
+JS Code(functions) with arguments and scope can be encoded by calling `BSON.jsFunction(lambda, variables)` where `lambda` may be any user defined function and `variables` works as `scope` in `BSON.jsCodeWithScope`.
+
+```javascript
+var encoded_bson = BSON.encode({
+  fun: BSON.jsFunction(function(a, b) {
+    return a * Math.pow(x, 2) + b * x + c;
+  }, {x: 4, c: -16})
+});
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.fun
+    function anonymous(a, b) {
+      var x = 4
+        , c = -16
+      ;
+      return a + b;
+    }
+*/
+
+```
 
