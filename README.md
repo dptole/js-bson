@@ -52,7 +52,26 @@ var encoded_bson = BSON.encode({
   },
   created_at: new Date(2013, 2, 23) // UTC Datetime
 });
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.login         : 'dptole'
+  javascript_object.id            : 3951114
+  javascript_object.gender        : null
+  javascript_object.ready_profile : 12.34
+  javascript_object.formats       : /(jpe?g|mp[34]|html?)/
+  javascript_object.site_admin    : false
+  javascript_object.is_user       : true
+  javascript_object.limbs         : {arms: ['hands', 'fingers']}
+  javascript_object.limbs.arms    : ['hands', 'fingers']
+  javascript_object.limbs.arms[0] : 'hands'
+  javascript_object.limbs.arms[1] : 'fingers'
+  javascript_object.created_at    : 'Sat, 23 Mar 2013 00:00:00 GMT'
+*/
+
 ```
+
+## Undefined and Int64
 
 Accordingly to the BSON specification the `undefined` type should be deprecated but, as long as JavaScript have a keyword specifically created to express this type of data, I will keep it.
 `Int64` is encoded as `Double` because of the lack of support of the Int32+ numbers by the JavaScript language.
@@ -62,6 +81,13 @@ var encoded_bson = BSON.encode({
   website: undefined,               // Undefined
   timestamp: +new Date              // Int64 encoded as Double
 });
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.website   : undefined
+  javascript_object.timestamp : 1411179144221
+*/
+
 ```
 
 ## Encoding Binary data
@@ -77,6 +103,13 @@ UUID Old (0x03) | UUID (0x04)
 var encoded_bson = BSON.encode({
   binary: BSON.binary('\x64\x70\x74\x6f\x6c\x65', 2)
 });
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.binary
+    Binary {toString: function, subtype: 0}
+*/
+
 ```
 
 ## Encoding JS Code/JS Code with scope
@@ -87,6 +120,15 @@ JS Code data can be encoded by calling `BSON.jsCode(code)` where `code` may be a
 var encoded_bson = BSON.encode({
   fun: BSON.jsCode('return +new Date')
 });
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.fun
+    function anonymous() {
+    return +new Date
+    }
+*/
+
 ```
 
 JS Code with scope data can be encoded by calling `BSON.jsCodeWithScope(code, scope)` where `code` may be any string and `scope` is an object. Each key in `scope` will be a variable name within the JavaScript code and the key value is interpreted as JavaScript code.
@@ -101,6 +143,19 @@ var encoded_bson = BSON.encode({
     ts: +new Date
   })
 });
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.fun
+    function anonymous() {
+    var origin = "My nick"
+      , internal = otherPeerFunction
+      , ts = 1411177888866
+    ;
+    return internal(origin, ts)
+    }
+*/
+
 ```
 
 
