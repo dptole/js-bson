@@ -71,7 +71,7 @@ var javascript_object = BSON.decode(encoded_bson);
 
 ```
 
-## Undefined and Int64
+### Undefined and Int64
 
 Accordingly to the BSON specification the `undefined` type should be deprecated but, as long as JavaScript have a keyword specifically created to express this type of data, I will keep it.
 `Int64` is encoded as `Double` because of the lack of support of the Int32+ numbers by the JavaScript language.
@@ -90,7 +90,7 @@ var javascript_object = BSON.decode(encoded_bson);
 
 ```
 
-## Encoding Binary data
+### Encoding Binary data
 
 Binary data can be encoded by calling `BSON.binary(data, substype)` where `data` may be any string and `substype` may be between 0x00-0x05 or 0x80-0xFF. Some castings may occur during `subtype` interpretation.
 
@@ -112,7 +112,7 @@ var javascript_object = BSON.decode(encoded_bson);
 
 ```
 
-## Encoding JS Code/JS Code with scope
+### Encoding JS Code/JS Code with scope
 
 JS Code data can be encoded by calling `BSON.jsCode(code)` where `code` may be any string. The syntax is verified when decoding.
 
