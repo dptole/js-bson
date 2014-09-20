@@ -197,7 +197,7 @@ var javascript_object = BSON.decode(encoded_bson);
       var x = 4
         , c = -16
       ;
-      return a + b;
+      return a * Math.pow(x, 2) + b * x + c;
     }
 */
 
