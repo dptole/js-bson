@@ -205,4 +205,28 @@ var javascript_object = BSON.decode(encoded_bson);
 
 > Attention! **JS Code** and **JS Code with scope** may not work across other implementations because not all of them may support it. Consider using these types just within the same implementation.
 
+# Advanced
 
+You can encode any element using a function as long as you understand the BSON specification, check the example:
+
+```javascript
+var encoded_bson = BSON.encode({
+  true_key_custom: function( key ) {
+    // \x08 - Boolean type
+    // key  - 'true_key_custom'
+    // \x00 - Separator
+    // \x01 - true
+    return '\x08' + key + '\x00\x01';
+  },
+  true_key: true
+});
+
+var javascript_object = BSON.decode(encoded_bson);
+/*
+  javascript_object.true_key_custom true
+  javascript_object.true_key        true
+*/
+
+```
+
+This way you can encode any BSON type, even those without support.
