@@ -42,6 +42,25 @@
 
   /* ********************************************************************** */
 
+  /* 
+  Buffer( buffer ) -> instanceof Binary
+
+  A simple way to represent the Buffer data in JavaScript in a cross-browser
+  manner. This is meant to fulfill the needs of this BSON implementation only.
+
+  buffer -> String
+
+  Ex.:
+    var buf = Buffer('data-to-be-treated-as-buffer');
+    console.log(buf.pick(0));              // 100(d)
+    console.log(buf.length);               // 28
+    console.log(buf.slice(4).pick(0));     // 45(-)
+    console.log(buf.slice(4, 4).length);   // 4
+    console.log(buf.sliceWhile(function(c) {
+      return c > 96 && c < 123
+    }).toArray());                         // [100, 97, 116, 97]
+
+  */
   function Buffer( buffer ) {
     if( ! ( this instanceof Buffer ) )
       return new Buffer( buffer );
