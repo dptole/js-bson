@@ -43,7 +43,7 @@
   /* ********************************************************************** */
 
   /* 
-  Buffer( buffer ) -> instanceof Binary
+  Buffer( buffer ) -> instanceof Buffer
 
   A simple way to represent the Buffer data in JavaScript in a cross-browser
   manner. This is meant to fulfill the needs of this BSON implementation only.
@@ -171,6 +171,23 @@
 
   /* ********************************************************************** */
 
+  /*
+  Int64( buffer ) -> instanceof Int64
+
+  A simple way to represent int64 numbers in JavaScript. This is meant to
+  fulfill the needs of this BSON implementation only.
+
+  buffer -> Array
+    This is a big endian buffer of octets.
+
+  Ex.:
+    var i64 = Int64([0x90, 0xAB, 0x12, 0xCD, 0, 0, 0, 0]);
+    console.log(i64.toString()); // "3440552848"
+
+  More info:
+    <http://migre.me/lukzt>
+
+  */
   function Int64(buffer) {
     if( ! ( this instanceof Int64 ) )
       return new Int64(buffer);

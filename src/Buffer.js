@@ -1,6 +1,6 @@
 -function( global ) {
   /* 
-  Buffer( buffer ) -> instanceof Binary
+  Buffer( buffer ) -> instanceof Buffer
 
   A simple way to represent the Buffer data in JavaScript in a cross-browser
   manner. This is meant to fulfill the needs of this BSON implementation only.
