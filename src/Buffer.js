@@ -1,5 +1,5 @@
 -function( global ) {
-  /* 
+  /*
   Buffer( buffer ) -> instanceof Buffer
 
   A simple way to represent the Buffer data in JavaScript in a cross-browser
@@ -62,6 +62,22 @@
 
   /* ********************************************************************** */
 
+  /*
+  readInt( buffer ) -> Number
+
+  Reads a buffer-like (array of numbers) and retrieves its integer representation.
+  There is no restriction about the size of the buffer (4 or 8 octets).
+  The buffer is readed as little endian.
+
+  buffer -> Array
+
+  Ex.:
+    readInt([1,0,0,0]); // 10
+    readInt([0,1,0,0]); // 256
+    readInt([0,0,1,0]); // 65536
+    readInt([0,0,0,1]); // 16777216
+
+  */
   function readInt( buffer ) {
     for(var i = 0, value = 0; i < buffer.length;)
       value += buffer[ i ] * Math.pow( 2, 8 * i++ );
