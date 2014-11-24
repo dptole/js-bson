@@ -92,6 +92,20 @@
 
   /* ********************************************************************** */
 
+  /*
+  readFloat( buffer ) -> Number
+
+  Reads a buffer-like (array of numbers) and retrieves its 64bit IEEE754
+  representation. For position purposes the sign bit must be in the last index.
+
+  buffer -> Array
+
+  Ex.:
+    readFloat([0, 0, 0, 0, 0, 0, 144, 64]);             // 1024
+    readFloat([154, 153, 153, 153, 153, 153, 185, 63]); // 0.1
+    readFloat([0, 0, 0, 0, 0, 200, 116, 64]);           // 332.5
+
+  */
   function readFloat( buffer ) {
     var buffer = buffer.reverse()
       , sign = ( buffer[ 0 ] >> 7 ) > 0 ? -1 : 1
