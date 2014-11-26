@@ -687,12 +687,13 @@
     ); // {"number": 12345, "string": "key buddy"}
 
   */
-  function decode(buffer, is_array) {
+  function decode(buffer, is_array, fallback) {
     var offset = 0
       , key = null
       , type = null
       , decoded = is_array ? [] : {}
       , length = buffer.readInt32LE(offset)
+      , has_fallback = fallback instanceof Function
     ;
 
     if( length !== buffer.length )
@@ -813,7 +814,17 @@
           offset += source.length + modifiers.length + 1;
         break;
 
-        default: throw new Error('Unknown type ' + type );
+        default:
+          if(has_fallback) {
+            var fallback_return = fallback(type, key, buffer.slice(offset));
+            if(fallback_return[0] < 0)
+              throw new Error(
+                'Fallback may not return negative numbers: '+fallback_return[0]
+              );
+            offset += fallback_return[0];
+            decoded[fallback_return[1]] = fallback_return[2];
+            continue;
+          } else throw new Error('Unknown type ' + type );
       }
 
       offset++;
@@ -1129,7 +1140,9 @@
 
   global.BSON = {
     encode: function( document ) { return encode( document ); },
-    decode: function( bson ) { return decode( Buffer( bson ), false ); },
+    decode: function( bson, fallback ) {
+      return decode( Buffer( bson ), false, fallback );
+    },
 
     get BINARY_TYPE() { return {
       UUID_OLD : TYPES.BINARY.UUID_OLD.E,
