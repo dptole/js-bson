@@ -6,7 +6,7 @@
   fulfill the needs of this BSON implementation only.
 
   buffer -> Array
-    This is a big endian buffer of octets.
+    This is a little endian buffer of octets.
 
   Ex.:
     var i64 = Int64([0x90, 0xAB, 0x12, 0xCD, 0, 0, 0, 0]);
@@ -17,10 +17,8 @@
 
   */
   function Int64(buffer) {
-    if( ! ( this instanceof Int64 ) )
-      return new Int64(buffer);
-
-    this.buffer = function() {return buffer;};
+    if( ! ( this instanceof Int64 ) ) return new Int64(buffer);
+    this.buffer = function() { return buffer.concat(); };
   };
 
   Int64.prototype = {

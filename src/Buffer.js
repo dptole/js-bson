@@ -98,7 +98,7 @@
   Reads a buffer-like (array of numbers) and retrieves its 64bit IEEE754
   representation. For position purposes the sign bit must be in the last index.
 
-  buffer -> Array
+  buffer -> Array (length 8)
 
   Ex.:
     readFloat([0, 0, 0, 0, 0, 0, 144, 64]);             // 1024
