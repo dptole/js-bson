@@ -667,10 +667,23 @@
   /* ********************************************************************** */
 
   /*
-  decode( bson, is_array ) -> Object
+  decode( bson, is_array[, fallback ] ) -> Object
 
   bson -> String
   is_array -> Boolean
+  fallback -> Function (optional)
+    This function is used when you want to handle unknown types
+    It receives three arguments
+      type   -> Number
+      key    -> String
+      buffer -> Array
+    And it must return an array as
+      [
+        Number,
+        String,
+        Anything
+      ]
+    More info <http://migre.me/n83hE>
 
   Converts the BSON document into a JavaScript Object.
   This function works as a helper to the BSON.decode.
@@ -768,7 +781,7 @@
         case TYPES.ARRAY.D:
           var end_offset = buffer.readInt32LE(offset);
           decoded[key] = decode(
-            buffer.slice( offset, end_offset ), TYPES.ARRAY.D === type
+            buffer.slice( offset, end_offset ), TYPES.ARRAY.D === type, fallback
           );
           offset += end_offset - 1;
         break;
@@ -816,7 +829,9 @@
 
         default:
           if(has_fallback) {
-            var fallback_return = fallback(type, key, buffer.slice(offset));
+            var fallback_return = fallback(
+              type, key, buffer.slice(offset).toArray()
+            );
             if(fallback_return[0] < 0)
               throw new Error(
                 'Fallback may not return negative numbers: '+fallback_return[0]
